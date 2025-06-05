@@ -1,0 +1,8 @@
+{
+  "name": "zoom-in-thinking-routine",
+  "version": "1.0.0",
+  "description": "Prototype for Zoom In thinking routine with Google Apps Script",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0"
+  }
+}
