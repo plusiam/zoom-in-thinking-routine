@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Student Worksheet</title>
+</head>
+<body>
+  <? if (error) { ?>
+    <p style="color:red;"><?= error ?></p>
+  <? } ?>
+  <? if (imageData) { ?>
+    <img src="<?= imageData ?>" alt="Selected Image" style="max-width:100%;" />
+  <? } else { ?>
+    <p>No image available.</p>
+  <? } ?>
+</body>
+</html>
