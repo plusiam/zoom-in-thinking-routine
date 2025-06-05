@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+      function saveSheetId() {
+        var id = document.getElementById('sheetId').value;
+        google.script.run.withSuccessHandler(function(){
+          alert('Saved');
+        }).setSheetId(id);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Teacher Dashboard</h1>
+    <label>Spreadsheet ID:
+      <input type="text" id="sheetId">
+    </label>
+    <button onclick="saveSheetId()">Save</button>
+  </body>
+</html>
