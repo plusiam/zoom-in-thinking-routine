@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom In 사고루틴 - 교사 가이드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            line-height: 1.8;
+            color: #1f2937;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .guide-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .guide-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .content-wrapper {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #6366f1;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #e5e7eb;
+        }
+        
+        .section h3 {
+            color: #4b5563;
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            padding: 25px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border-left: 4px solid #6366f1;
+        }
+        
+        .feature-card h4 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: #6366f1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .tip-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .tip-box h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        
+        .example-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .code-box {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #10b981;
+        }
+        
+        .btn-secondary:hover {
+            background: #059669;
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 30px 20px;
+            }
+            
+            .guide-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="guide-header">
+            <h1>👩‍🏫 교사용 가이드</h1>
+            <p>Zoom In 사고루틴 효과적 활용법</p>
+        </header>
+        
+        <div class="content-wrapper">
+            <!-- 소개 섹션 -->
+            <section class="section">
+                <h2>📚 Zoom In 사고루틴이란?</h2>
+                <p>
+                    Zoom In은 Harvard Project Zero에서 개발한 Visible Thinking Routine 중 하나로,
+                    이미지를 단계적으로 공개하면서 학생들의 관찰력, 추론 능력, 호기심을 자극하는 교육 방법입니다.
+                </p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>👁️ 관찰력 향상</h4>
+                        <p>세부사항을 주의 깊게 관찰하고 기록하는 능력을 기릅니다.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🤔 추론 능력 개발</h4>
+                        <p>부분 정보로 전체를 예측하는 논리적 사고력을 키웁니다.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>❓ 호기심 자극</h4>
+                        <p>질문을 생성하고 탐구하는 능동적 학습 태도를 형성합니다.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 준비 사항 -->
+            <section class="section">
+                <h2>🎯 수업 준비</h2>
+                
+                <h3>이미지 선택 기준</h3>
+                <ul>
+                    <li>학습 목표와 연관성이 높은 이미지</li>
+                    <li>다양한 해석이 가능한 복잡도</li>
+                    <li>학생 수준에 적합한 난이도</li>
+                    <li>고해상도 이미지 (최소 800x800px)</li>
+                </ul>
+                
+                <h3>추천 이미지 유형</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>교과</th>
+                            <th>이미지 유형</th>
+                            <th>학습 목표</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>과학</td>
+                            <td>현미경 사진, 자연 현상</td>
+                            <td>관찰과 가설 설정</td>
+                        </tr>
+                        <tr>
+                            <td>사회</td>
+                            <td>역사 유물, 지도, 사진</td>
+                            <td>역사적 추론과 맥락 이해</td>
+                        </tr>
+                        <tr>
+                            <td>미술</td>
+                            <td>미술 작품, 건축물</td>
+                            <td>시각적 분석과 해석</td>
+                        </tr>
+                        <tr>
+                            <td>국어</td>
+                            <td>삽화, 그림책 장면</td>
+                            <td>묘사와 상상력</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- 수업 진행 -->
+            <section class="section">
+                <h2>📝 수업 진행 방법</h2>
+                
+                <ol class="step-list">
+                    <li>
+                        <strong>도입 (5분)</strong><br>
+                        활동 목적 설명 및 규칙 안내<br>
+                        "오늘은 탐정이 되어 이미지의 비밀을 풀어볼 거예요"
+                    </li>
+                    <li>
+                        <strong>1단계 공개 (7분)</strong><br>
+                        중앙 부분만 공개<br>
+                        관찰 → 추론 → 질문 순서로 기록
+                    </li>
+                    <li>
+                        <strong>2단계 공개 (7분)</strong><br>
+                        모서리 추가 공개<br>
+                        이전 추론 수정 및 보완
+                    </li>
+                    <li>
+                        <strong>3단계 공개 (7분)</strong><br>
+                        대부분 공개 (중앙 제외)<br>
+                        가설 구체화
+                    </li>
+                    <li>
+                        <strong>4단계 전체 공개 (7분)</strong><br>
+                        전체 이미지 공개<br>
+                        최종 해석 및 성찰
+                    </li>
+                    <li>
+                        <strong>마무리 (7분)</strong><br>
+                        결과 공유 및 토론<br>
+                        학습 내용 정리
+                    </li>
+                </ol>
+                
+                <div class="tip-box">
+                    <h4>💡 수업 팁</h4>
+                    <ul>
+                        <li>각 단계마다 충분한 시간을 제공하세요</li>
+                        <li>정답을 강요하지 말고 다양한 해석을 인정하세요</li>
+                        <li>학생들의 사고 과정을 칭찬하세요</li>
+                        <li>질문이 없는 학생에게는 예시를 제공하세요</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 고급 기능 -->
+            <section class="section">
+                <h2>⚙️ 고급 기능 활용</h2>
+                
+                <h3>URL 파라미터 활용</h3>
+                
+                <div class="code-box">
+# 타이머 모드 (단계당 3분)
+https://plusiam.github.io/zoom-in-thinking-routine/?timer=true
+
+# 교사 모드
+https://plusiam.github.io/zoom-in-thinking-routine/?mode=teacher
+
+# 복합 사용
+https://plusiam.github.io/zoom-in-thinking-routine/?mode=teacher&timer=true
+                </div>
+                
+                <h3>학급 운영 방법</h3>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>개별 활동</h4>
+                        <p>1인 1디바이스로 각자 진행<br>
+                        개인별 속도 조절 가능</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>모둠 활동</h4>
+                        <p>4-5명이 함께 토론하며 진행<br>
+                        협업적 사고 촉진</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>전체 활동</h4>
+                        <p>교사 화면 공유로 진행<br>
+                        실시간 의견 교환</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 평가 방법 -->
+            <section class="section">
+                <h2>📊 평가 및 피드백</h2>
+                
+                <h3>평가 관점</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>영역</th>
+                            <th>상</th>
+                            <th>중</th>
+                            <th>하</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>관찰</td>
+                            <td>구체적이고 다양한 관찰</td>
+                            <td>기본적인 관찰</td>
+                            <td>단순한 관찰</td>
+                        </tr>
+                        <tr>
+                            <td>추론</td>
+                            <td>논리적 근거 제시</td>
+                            <td>일반적 추측</td>
+                            <td>근거 없는 추측</td>
+                        </tr>
+                        <tr>
+                            <td>질문</td>
+                            <td>탐구적 질문 생성</td>
+                            <td>기본적 질문</td>
+                            <td>질문 생성 미흡</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="example-box">
+                    <h4>피드백 예시</h4>
+                    <p>"색깔과 모양을 자세히 관찰한 점이 훌륭해요! 다음에는 크기나 위치 관계도 관찰해보면 어떨까요?"</p>
+                </div>
+            </section>
+            
+            <!-- 문제 해결 -->
+            <section class="section">
+                <h2>🔧 문제 해결</h2>
+                
+                <h3>자주 발생하는 문제</h3>
+                
+                <div class="tip-box">
+                    <h4>Q: 학생이 결과를 제출하지 못했어요</h4>
+                    <p>A: 브라우저의 다운로드 폴더를 확인하세요. 이미지가 자동 저장됩니다.</p>
+                </div>
+                
+                <div class="tip-box">
+                    <h4>Q: 이미지가 업로드되지 않아요</h4>
+                    <p>A: 이미지 형식(JPG, PNG)과 크기(10MB 이하)를 확인하세요.</p>
+                </div>
+                
+                <div class="tip-box">
+                    <h4>Q: 모바일에서 작동하지 않아요</h4>
+                    <p>A: 최신 브라우저(Chrome, Safari)를 사용하세요.</p>
+                </div>
+            </section>
+            
+            <!-- 추가 자료 -->
+            <section class="section">
+                <h2>📚 추가 자료</h2>
+                
+                <div class="btn-group">
+                    <a href="index.html" class="btn">메인으로</a>
+                    <a href="student-guide.html" class="btn btn-secondary">학생 가이드</a>
+                    <a href="https://github.com/plusiam/zoom-in-thinking-routine" class="btn">GitHub</a>
+                </div>
+                
+                <h3>참고 문헌</h3>
+                <ul>
+                    <li>Ritchhart, R., Church, M., & Morrison, K. (2011). Making Thinking Visible</li>
+                    <li>Harvard Project Zero - Visible Thinking Resources</li>
+                    <li>교육부 (2022). 2022 개정 교육과정 총론</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+{
+  "name": "Zoom In 사고루틴 - 관찰과 추론 학습 도구",
+  "short_name": "Zoom In",
+  "description": "단계적 이미지 공개를 통한 관찰력과 사고력 향상 학습 도구",
+  "lang": "ko-KR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["education", "productivity"],
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "메인 화면"
+    },
+    {
+      "src": "/screenshot-2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "활동 진행"
+    },
+    {
+      "src": "/screenshot-3.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "결과 화면"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "새 활동 시작",
+      "short_name": "시작",
+      "description": "새로운 Zoom In 활동을 시작합니다",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "교사 모드",
+      "short_name": "교사",
+      "description": "교사용 기능을 활성화합니다",
+      "url": "/?mode=teacher",
+      "icons": [
+        {
+          "src": "/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "features": [
+    "오프라인 지원",
+    "개인정보 보호",
+    "결과 다운로드",
+    "반응형 디자인"
+  ],
+  "permissions": [
+    "storage"
+  ]
+}
