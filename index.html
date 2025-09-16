@@ -1,1 +1,1474 @@
-
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zoom In 사고루틴 - 단계적 이미지 공개를 통한 관찰, 추론, 질문 생성 학습 도구">
+    <meta name="author" content="plusiam">
+    <title>Zoom In 사고루틴 | 사고력 향상 학습 도구</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .app-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .app-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .privacy-notice {
+            background: linear-gradient(135deg, #e0f2fe, #ddd6fe);
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+        }
+        
+        .privacy-notice h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .privacy-notice ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .privacy-notice li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .privacy-notice li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .setup-area {
+            text-align: center;
+            padding: 40px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+        }
+        
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .file-upload-label {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .file-upload-label:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .sample-images {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .sample-image-btn {
+            width: 120px;
+            height: 120px;
+            border: 3px solid transparent;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .sample-image-btn:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        
+        .sample-image-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .sample-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .activity-area {
+            display: none;
+        }
+        
+        .zoom-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .zoom-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            aspect-ratio: 1;
+            background: #000;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .grid-cell {
+            position: relative;
+            background-size: 300% 300%;
+            background-position: var(--bg-x) var(--bg-y);
+            transition: var(--transition);
+        }
+        
+        .grid-cell.hidden {
+            filter: brightness(0);
+        }
+        
+        .grid-cell.hidden::after {
+            content: '?';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+        }
+        
+        .grid-cell.revealing {
+            animation: reveal 0.5s ease forwards;
+        }
+        
+        @keyframes reveal {
+            0% {
+                transform: scale(0.8) rotate(180deg);
+                filter: brightness(0);
+            }
+            50% {
+                transform: scale(1.1) rotate(90deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                filter: brightness(1);
+            }
+        }
+        
+        .progress-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 25%;
+        }
+        
+        .stage-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .stage-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #9ca3af;
+            transition: var(--transition);
+        }
+        
+        .stage-dot.completed {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .stage-dot.active {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.2);
+        }
+        
+        .thinking-area {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .thinking-area h2 {
+            text-align: center;
+            color: var(--dark);
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+        
+        .thinking-section {
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+        
+        .thinking-section:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thinking-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 1.3rem;
+        }
+        
+        .thinking-section textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: var(--transition);
+        }
+        
+        .thinking-section textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .result-area {
+            display: none;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .result-header h2 {
+            color: var(--dark);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .result-canvas-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        #resultCanvas {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .student-info {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .student-info h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-input label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #6b7280;
+        }
+        
+        .info-input input {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .info-input input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .timer-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--dark);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .timer-display.warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .modal h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .modal p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, -40%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .thinking-area {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            .sample-images {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --dark: #f9fafb;
+                --light: #1f2937;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #1e1b4b, #581c87);
+            }
+            
+            .main-content {
+                background: #111827;
+                color: #f9fafb;
+            }
+            
+            .thinking-section {
+                background: #1f2937;
+            }
+            
+            .thinking-section textarea {
+                background: #111827;
+                color: #f9fafb;
+                border-color: #374151;
+            }
+            
+            .privacy-notice {
+                background: linear-gradient(135deg, #1e293b, #312e81);
+            }
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 3000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>🔍 Zoom In 사고루틴</h1>
+            <p>단계적 이미지 공개를 통한 관찰력과 사고력 향상 학습 도구</p>
+        </header>
+        
+        <main class="main-content">
+            <!-- 개인정보 보호 안내 -->
+            <div class="privacy-notice">
+                <h3>🔒 개인정보 보호 안내</h3>
+                <ul>
+                    <li>모든 활동은 브라우저에서만 처리됩니다</li>
+                    <li>서버로 전송되는 데이터가 전혀 없습니다</li>
+                    <li>학습 결과는 이미지로 다운로드하여 직접 제출하세요</li>
+                    <li>페이지를 새로고침하면 모든 데이터가 사라집니다</li>
+                </ul>
+            </div>
+            
+            <!-- 학생 정보 입력 (선택사항) -->
+            <div class="student-info" id="studentInfo">
+                <h3>📝 학습자 정보 (선택사항)</h3>
+                <div class="info-grid">
+                    <div class="info-input">
+                        <label for="studentName">이름</label>
+                        <input type="text" id="studentName" placeholder="홍길동">
+                    </div>
+                    <div class="info-input">
+                        <label for="studentClass">학급</label>
+                        <input type="text" id="studentClass" placeholder="3학년 2반">
+                    </div>
+                    <div class="info-input">
+                        <label for="studentNumber">번호</label>
+                        <input type="text" id="studentNumber" placeholder="15">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 초기 설정 영역 -->
+            <div class="setup-area" id="setupArea">
+                <h2>시작하기</h2>
+                <p style="margin-bottom: 30px; color: #6b7280;">
+                    이미지를 선택하여 Zoom In 사고루틴을 시작하세요
+                </p>
+                
+                <div class="file-upload-wrapper">
+                    <label for="imageUpload" class="file-upload-label">
+                        📷 내 이미지 업로드
+                    </label>
+                    <input type="file" id="imageUpload" accept="image/*">
+                </div>
+                
+                <div style="margin: 30px 0;">
+                    <h3 style="margin-bottom: 20px; color: #4b5563;">또는 샘플 이미지 선택</h3>
+                    <div class="sample-images">
+                        <div class="sample-image-btn" onclick="loadSampleImage('nature')">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%2310b981' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40' fill='white'%3E🌳%3C/text%3E%3C/svg%3E" alt="자연">
+                            <div class="sample-label">자연</div>
+                        </div>
+                        <div class="sample-image-btn" onclick="loadSampleImage('science')">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%236366f1' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40' fill='white'%3E🔬%3C/text%3E%3C/svg%3E" alt="과학">
+                            <div class="sample-label">과학</div>
+                        </div>
+                        <div class="sample-image-btn" onclick="loadSampleImage('art')">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%238b5cf6' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40' fill='white'%3E🎨%3C/text%3E%3C/svg%3E" alt="예술">
+                            <div class="sample-label">예술</div>
+                        </div>
+                        <div class="sample-image-btn" onclick="loadSampleImage('history')">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23f59e0b' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='40' fill='white'%3E🏛️%3C/text%3E%3C/svg%3E" alt="역사">
+                            <div class="sample-label">역사</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="showStudentInfo()">
+                        👤 학습자 정보 입력 (선택)
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 활동 영역 -->
+            <div class="activity-area" id="activityArea">
+                <!-- Zoom 그리드 -->
+                <div class="zoom-container">
+                    <div class="zoom-grid" id="zoomGrid"></div>
+                </div>
+                
+                <!-- 진행 상황 -->
+                <div class="progress-section">
+                    <h3>진행 상황</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="stage-indicator">
+                        <div class="stage-dot" data-stage="1">1</div>
+                        <div class="stage-dot" data-stage="2">2</div>
+                        <div class="stage-dot" data-stage="3">3</div>
+                        <div class="stage-dot" data-stage="4">4</div>
+                    </div>
+                </div>
+                
+                <!-- 사고 기록 영역 -->
+                <div class="thinking-area">
+                    <h2>🧠 단계 <span id="currentStage">1</span> / 4</h2>
+                    
+                    <div class="thinking-section">
+                        <h3>👁️ 관찰 (나는 본다...)</h3>
+                        <textarea 
+                            id="observations" 
+                            placeholder="무엇이 보이나요? 색, 모양, 크기, 위치, 질감 등을 구체적으로 적어주세요.
+예시: 중앙에 둥근 노란색 물체가 보입니다. 주변은 어두운 색입니다."
+                        ></textarea>
+                    </div>
+                    
+                    <div class="thinking-section">
+                        <h3>🤔 추론 (나는 생각한다...)</h3>
+                        <textarea 
+                            id="thoughts" 
+                            placeholder="관찰한 내용을 바탕으로 이것이 무엇일지, 어떤 상황일지 추측해보세요.
+예시: 이것은 태양일 것 같습니다. 일출이나 일몰 장면인 것 같습니다."
+                        ></textarea>
+                    </div>
+                    
+                    <div class="thinking-section">
+                        <h3>❓ 질문 (나는 궁금하다...)</h3>
+                        <textarea 
+                            id="questions" 
+                            placeholder="더 알고 싶은 것, 확인하고 싶은 것은 무엇인가요?
+예시: 이것이 정말 태양인가요? 배경에는 무엇이 있을까요?"
+                        ></textarea>
+                    </div>
+                </div>
+                
+                <!-- 제어 버튼 -->
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="saveAndNext()" id="nextBtn">
+                        💾 저장하고 다음 단계 →
+                    </button>
+                    <button class="btn btn-success" onclick="completeActivity()" id="completeBtn" style="display: none;">
+                        ✅ 활동 완료하기
+                    </button>
+                    <button class="btn btn-warning" onclick="resetActivity()">
+                        🔄 처음부터 다시
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 결과 영역 -->
+            <div class="result-area" id="resultArea">
+                <div class="result-header">
+                    <h2>🎉 학습 활동 완료!</h2>
+                    <p style="color: #6b7280; margin-top: 10px;">
+                        아래 이미지를 다운로드하여 선생님께 제출하세요
+                    </p>
+                </div>
+                
+                <div class="result-canvas-wrapper">
+                    <canvas id="resultCanvas"></canvas>
+                </div>
+                
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                
+                <div class="result-actions">
+                    <button class="btn btn-success" onclick="downloadResult()">
+                        💾 결과 이미지 다운로드
+                    </button>
+                    <button class="btn btn-primary" onclick="copyToClipboard()">
+                        📋 이미지 복사
+                    </button>
+                    <button class="btn btn-primary" onclick="startNewActivity()">
+                        🆕 새 활동 시작
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 타이머 (옵션) -->
+        <div class="timer-display" id="timerDisplay">
+            ⏱️ <span id="timerMinutes">3</span>:<span id="timerSeconds">00</span>
+        </div>
+        
+        <!-- 모달 -->
+        <div class="modal" id="completionModal">
+            <div class="modal-content">
+                <h3>✨ 훌륭해요!</h3>
+                <p>
+                    모든 단계를 완료했습니다! 
+                    이제 여러분의 관찰, 추론, 질문을 정리한 학습 결과를 확인하세요.
+                </p>
+                <div style="text-align: center;">
+                    <button class="btn btn-primary" onclick="closeModal()">
+                        결과 확인하기
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 토스트 메시지 -->
+        <div class="toast" id="toast"></div>
+    </div>
+    
+    <script>
+        // Zoom In 앱 클래스
+        class ZoomInApp {
+            constructor() {
+                this.currentStage = 0;
+                this.totalStages = 4;
+                this.imageUrl = null;
+                this.responses = [];
+                this.studentInfo = {
+                    name: '',
+                    class: '',
+                    number: '',
+                    date: new Date().toLocaleDateString('ko-KR')
+                };
+                this.revealSequence = [
+                    [4],                        // Stage 1: 중앙만
+                    [4, 0, 2, 6, 8],           // Stage 2: 모서리 추가
+                    [0, 1, 2, 3, 5, 6, 7, 8],  // Stage 3: 중앙 제외
+                    [0, 1, 2, 3, 4, 5, 6, 7, 8] // Stage 4: 전체
+                ];
+                this.timer = null;
+                this.timeLimit = 180; // 3분
+                this.remainingTime = this.timeLimit;
+                
+                this.init();
+            }
+            
+            init() {
+                // 이벤트 리스너 설정
+                document.getElementById('imageUpload').addEventListener('change', (e) => {
+                    this.handleImageUpload(e);
+                });
+                
+                // URL 파라미터 체크 (교사 모드 등)
+                this.checkUrlParams();
+                
+                // 저장된 학생 정보 불러오기
+                this.loadStudentInfo();
+            }
+            
+            checkUrlParams() {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('mode') === 'teacher') {
+                    this.enableTeacherMode();
+                }
+                if (params.get('timer') === 'true') {
+                    this.enableTimer();
+                }
+            }
+            
+            loadStudentInfo() {
+                const savedInfo = localStorage.getItem('studentInfo');
+                if (savedInfo) {
+                    this.studentInfo = JSON.parse(savedInfo);
+                    document.getElementById('studentName').value = this.studentInfo.name || '';
+                    document.getElementById('studentClass').value = this.studentInfo.class || '';
+                    document.getElementById('studentNumber').value = this.studentInfo.number || '';
+                }
+            }
+            
+            saveStudentInfo() {
+                this.studentInfo.name = document.getElementById('studentName').value || '익명';
+                this.studentInfo.class = document.getElementById('studentClass').value || '';
+                this.studentInfo.number = document.getElementById('studentNumber').value || '';
+                localStorage.setItem('studentInfo', JSON.stringify(this.studentInfo));
+            }
+            
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imageUrl = e.target.result;
+                        this.startActivity();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    this.showToast('이미지 파일을 선택해주세요', 'error');
+                }
+            }
+            
+            loadSampleImage(type) {
+                // 샘플 이미지 생성 (실제로는 서버에서 가져올 수 있음)
+                const canvas = document.createElement('canvas');
+                canvas.width = 600;
+                canvas.height = 600;
+                const ctx = canvas.getContext('2d');
+                
+                // 샘플별 다른 패턴 생성
+                switch(type) {
+                    case 'nature':
+                        // 자연 이미지 (간단한 풍경)
+                        ctx.fillStyle = '#87CEEB';
+                        ctx.fillRect(0, 0, 600, 300);
+                        ctx.fillStyle = '#90EE90';
+                        ctx.fillRect(0, 300, 600, 300);
+                        ctx.fillStyle = '#FFD700';
+                        ctx.beginPath();
+                        ctx.arc(450, 150, 60, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#8B4513';
+                        ctx.fillRect(280, 200, 40, 200);
+                        ctx.fillStyle = '#228B22';
+                        ctx.beginPath();
+                        ctx.moveTo(300, 100);
+                        ctx.lineTo(250, 250);
+                        ctx.lineTo(350, 250);
+                        ctx.closePath();
+                        ctx.fill();
+                        break;
+                    case 'science':
+                        // 과학 이미지 (현미경 관찰)
+                        ctx.fillStyle = '#f0f0f0';
+                        ctx.fillRect(0, 0, 600, 600);
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 3;
+                        for(let i = 0; i < 5; i++) {
+                            ctx.beginPath();
+                            ctx.arc(Math.random() * 500 + 50, Math.random() * 500 + 50, 
+                                    Math.random() * 50 + 20, 0, Math.PI * 2);
+                            ctx.stroke();
+                            ctx.fillStyle = `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 0.3)`;
+                            ctx.fill();
+                        }
+                        break;
+                    case 'art':
+                        // 예술 이미지 (추상화)
+                        const gradient = ctx.createLinearGradient(0, 0, 600, 600);
+                        gradient.addColorStop(0, '#FF6B6B');
+                        gradient.addColorStop(0.5, '#4ECDC4');
+                        gradient.addColorStop(1, '#45B7D1');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, 600, 600);
+                        for(let i = 0; i < 10; i++) {
+                            ctx.fillStyle = `hsla(${Math.random()*360}, 70%, 50%, 0.7)`;
+                            ctx.fillRect(Math.random()*500, Math.random()*500, 
+                                        Math.random()*100+50, Math.random()*100+50);
+                        }
+                        break;
+                    case 'history':
+                        // 역사 이미지 (건축물)
+                        ctx.fillStyle = '#87CEEB';
+                        ctx.fillRect(0, 0, 600, 400);
+                        ctx.fillStyle = '#D2B48C';
+                        ctx.fillRect(0, 400, 600, 200);
+                        ctx.fillStyle = '#8B7355';
+                        ctx.fillRect(200, 250, 200, 300);
+                        ctx.beginPath();
+                        ctx.moveTo(150, 250);
+                        ctx.lineTo(300, 150);
+                        ctx.lineTo(450, 250);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.fillStyle = '#654321';
+                        ctx.fillRect(275, 400, 50, 100);
+                        ctx.fillRect(225, 300, 40, 40);
+                        ctx.fillRect(335, 300, 40, 40);
+                        break;
+                }
+                
+                this.imageUrl = canvas.toDataURL();
+                this.startActivity();
+            }
+            
+            startActivity() {
+                this.saveStudentInfo();
+                document.getElementById('setupArea').style.display = 'none';
+                document.getElementById('studentInfo').style.display = 'none';
+                document.getElementById('activityArea').style.display = 'block';
+                this.initializeGrid();
+                this.showStage(0);
+                this.updateUI();
+                this.showToast('활동이 시작되었습니다! 🚀');
+                
+                if (this.timer) {
+                    this.startTimer();
+                }
+            }
+            
+            initializeGrid() {
+                const grid = document.getElementById('zoomGrid');
+                grid.innerHTML = '';
+                
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell hidden';
+                    cell.style.backgroundImage = `url(${this.imageUrl})`;
+                    
+                    const x = (i % 3) * -100;
+                    const y = Math.floor(i / 3) * -100;
+                    cell.style.setProperty('--bg-x', `${x}%`);
+                    cell.style.setProperty('--bg-y', `${y}%`);
+                    cell.dataset.index = i;
+                    
+                    grid.appendChild(cell);
+                }
+            }
+            
+            showStage(stageIndex) {
+                const cells = document.querySelectorAll('.grid-cell');
+                const revealIndices = this.revealSequence[stageIndex];
+                
+                cells.forEach((cell, index) => {
+                    setTimeout(() => {
+                        if (revealIndices.includes(index)) {
+                            cell.classList.remove('hidden');
+                            cell.classList.add('revealing');
+                            setTimeout(() => {
+                                cell.classList.remove('revealing');
+                            }, 500);
+                        } else {
+                            cell.classList.add('hidden');
+                        }
+                    }, index * 50);
+                });
+            }
+            
+            updateUI() {
+                // 진행 상황 업데이트
+                const progress = ((this.currentStage + 1) / this.totalStages) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                
+                // 단계 표시 업데이트
+                document.getElementById('currentStage').textContent = this.currentStage + 1;
+                
+                // 단계 인디케이터 업데이트
+                document.querySelectorAll('.stage-dot').forEach((dot, index) => {
+                    dot.classList.remove('active', 'completed');
+                    if (index < this.currentStage) {
+                        dot.classList.add('completed');
+                    } else if (index === this.currentStage) {
+                        dot.classList.add('active');
+                    }
+                });
+                
+                // 버튼 상태 업데이트
+                if (this.currentStage === this.totalStages - 1) {
+                    document.getElementById('nextBtn').style.display = 'none';
+                    document.getElementById('completeBtn').style.display = 'inline-flex';
+                } else {
+                    document.getElementById('nextBtn').style.display = 'inline-flex';
+                    document.getElementById('completeBtn').style.display = 'none';
+                }
+            }
+            
+            saveCurrentResponses() {
+                const response = {
+                    stage: this.currentStage + 1,
+                    observations: document.getElementById('observations').value,
+                    thoughts: document.getElementById('thoughts').value,
+                    questions: document.getElementById('questions').value,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // 기존 응답이 있으면 업데이트, 없으면 추가
+                const existingIndex = this.responses.findIndex(r => r.stage === response.stage);
+                if (existingIndex !== -1) {
+                    this.responses[existingIndex] = response;
+                } else {
+                    this.responses.push(response);
+                }
+            }
+            
+            clearInputs() {
+                document.getElementById('observations').value = '';
+                document.getElementById('thoughts').value = '';
+                document.getElementById('questions').value = '';
+            }
+            
+            nextStage() {
+                if (this.currentStage < this.totalStages - 1) {
+                    this.currentStage++;
+                    this.showStage(this.currentStage);
+                    this.updateUI();
+                    this.clearInputs();
+                    
+                    // 이전 응답 불러오기 (있으면)
+                    const previousResponse = this.responses.find(r => r.stage === this.currentStage + 1);
+                    if (previousResponse) {
+                        document.getElementById('observations').value = previousResponse.observations;
+                        document.getElementById('thoughts').value = previousResponse.thoughts;
+                        document.getElementById('questions').value = previousResponse.questions;
+                    }
+                    
+                    this.showToast(`단계 ${this.currentStage + 1}로 진행합니다`);
+                    
+                    if (this.timer) {
+                        this.resetTimer();
+                    }
+                }
+            }
+            
+            async generateResultImage() {
+                const canvas = document.getElementById('resultCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 고해상도 캔버스 설정
+                const scale = 2;
+                canvas.width = 1200 * scale;
+                canvas.height = 1600 * scale;
+                ctx.scale(scale, scale);
+                
+                // 배경
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 1200, 1600);
+                
+                // 헤더
+                const gradient = ctx.createLinearGradient(0, 0, 1200, 0);
+                gradient.addColorStop(0, '#6366f1');
+                gradient.addColorStop(1, '#8b5cf6');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1200, 120);
+                
+                // 제목
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 36px Pretendard, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Zoom In 사고루틴 학습 결과', 600, 50);
+                
+                // 학생 정보
+                ctx.font = '20px Pretendard, sans-serif';
+                ctx.fillText(`${this.studentInfo.name} | ${this.studentInfo.class} ${this.studentInfo.number ? '| ' + this.studentInfo.number + '번' : ''} | ${this.studentInfo.date}`, 600, 85);
+                
+                // 원본 이미지
+                const img = new Image();
+                img.onload = () => {
+                    // 이미지 그리기
+                    ctx.drawImage(img, 50, 150, 300, 300);
+                    
+                    // 이미지 테두리
+                    ctx.strokeStyle = '#e5e7eb';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(50, 150, 300, 300);
+                    
+                    // 단계별 응답
+                    let yPos = 150;
+                    const xPos = 400;
+                    const maxWidth = 750;
+                    
+                    this.responses.forEach((response, index) => {
+                        // 단계 헤더
+                        ctx.fillStyle = '#6366f1';
+                        ctx.font = 'bold 24px Pretendard, sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(`단계 ${response.stage}`, xPos, yPos);
+                        yPos += 35;
+                        
+                        // 관찰
+                        ctx.fillStyle = '#1f2937';
+                        ctx.font = 'bold 18px Pretendard, sans-serif';
+                        ctx.fillText('👁️ 관찰:', xPos, yPos);
+                        yPos += 25;
+                        ctx.font = '16px Pretendard, sans-serif';
+                        yPos = this.wrapText(ctx, response.observations || '(작성하지 않음)', xPos + 20, yPos, maxWidth - 20, 22);
+                        yPos += 15;
+                        
+                        // 추론
+                        ctx.font = 'bold 18px Pretendard, sans-serif';
+                        ctx.fillText('🤔 추론:', xPos, yPos);
+                        yPos += 25;
+                        ctx.font = '16px Pretendard, sans-serif';
+                        yPos = this.wrapText(ctx, response.thoughts || '(작성하지 않음)', xPos + 20, yPos, maxWidth - 20, 22);
+                        yPos += 15;
+                        
+                        // 질문
+                        ctx.font = 'bold 18px Pretendard, sans-serif';
+                        ctx.fillText('❓ 질문:', xPos, yPos);
+                        yPos += 25;
+                        ctx.font = '16px Pretendard, sans-serif';
+                        yPos = this.wrapText(ctx, response.questions || '(작성하지 않음)', xPos + 20, yPos, maxWidth - 20, 22);
+                        yPos += 35;
+                        
+                        // 구분선
+                        if (index < this.responses.length - 1) {
+                            ctx.strokeStyle = '#e5e7eb';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(xPos, yPos - 10);
+                            ctx.lineTo(xPos + maxWidth, yPos - 10);
+                            ctx.stroke();
+                            yPos += 10;
+                        }
+                    });
+                    
+                    // 푸터
+                    ctx.fillStyle = '#f9fafb';
+                    ctx.fillRect(0, 1500, 1200, 100);
+                    
+                    ctx.fillStyle = '#6b7280';
+                    ctx.font = '14px Pretendard, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('이 학습 결과는 브라우저에서 생성되었으며, 서버에 저장되지 않습니다.', 600, 1535);
+                    ctx.fillText(`생성 시각: ${new Date().toLocaleString('ko-KR')}`, 600, 1560);
+                    
+                    // 워터마크
+                    ctx.fillStyle = 'rgba(99, 102, 241, 0.1)';
+                    ctx.font = 'bold 120px Pretendard, sans-serif';
+                    ctx.save();
+                    ctx.translate(600, 800);
+                    ctx.rotate(-Math.PI / 6);
+                    ctx.fillText('ZOOM IN', 0, 0);
+                    ctx.restore();
+                };
+                
+                img.src = this.imageUrl;
+            }
+            
+            wrapText(context, text, x, y, maxWidth, lineHeight) {
+                const words = text.split(' ');
+                let line = '';
+                let currentY = y;
+                
+                for (let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n] + ' ';
+                    const metrics = context.measureText(testLine);
+                    const testWidth = metrics.width;
+                    
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, currentY);
+                        line = words[n] + ' ';
+                        currentY += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, currentY);
+                return currentY + lineHeight;
+            }
+            
+            downloadResult() {
+                const canvas = document.getElementById('resultCanvas');
+                const link = document.createElement('a');
+                const fileName = `ZoomIn_${this.studentInfo.name || '학습결과'}_${new Date().getTime()}.png`;
+                
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = fileName;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    
+                    this.showToast('결과가 다운로드되었습니다! 📥');
+                });
+            }
+            
+            async copyToClipboard() {
+                try {
+                    const canvas = document.getElementById('resultCanvas');
+                    canvas.toBlob(async (blob) => {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        await navigator.clipboard.write([item]);
+                        this.showToast('이미지가 클립보드에 복사되었습니다! 📋');
+                    });
+                } catch (err) {
+                    this.showToast('복사 실패: 브라우저가 이 기능을 지원하지 않습니다', 'error');
+                }
+            }
+            
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = 'toast show';
+                if (type === 'error') {
+                    toast.style.background = '#ef4444';
+                } else {
+                    toast.style.background = '#10b981';
+                }
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // 타이머 기능
+            enableTimer() {
+                this.timer = true;
+                document.getElementById('timerDisplay').style.display = 'block';
+            }
+            
+            startTimer() {
+                this.remainingTime = this.timeLimit;
+                this.updateTimerDisplay();
+                
+                this.timerInterval = setInterval(() => {
+                    this.remainingTime--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.remainingTime <= 30) {
+                        document.getElementById('timerDisplay').classList.add('warning');
+                    }
+                    
+                    if (this.remainingTime <= 0) {
+                        this.handleTimerEnd();
+                    }
+                }, 1000);
+            }
+            
+            updateTimerDisplay() {
+                const minutes = Math.floor(this.remainingTime / 60);
+                const seconds = this.remainingTime % 60;
+                document.getElementById('timerMinutes').textContent = minutes;
+                document.getElementById('timerSeconds').textContent = seconds.toString().padStart(2, '0');
+            }
+            
+            resetTimer() {
+                clearInterval(this.timerInterval);
+                document.getElementById('timerDisplay').classList.remove('warning');
+                this.startTimer();
+            }
+            
+            handleTimerEnd() {
+                clearInterval(this.timerInterval);
+                this.showToast('시간이 종료되었습니다! 다음 단계로 이동합니다.', 'warning');
+                this.saveAndNext();
+            }
+            
+            // 교사 모드
+            enableTeacherMode() {
+                // 교사용 추가 기능 활성화
+                console.log('교사 모드 활성화');
+                // 추가 기능 구현 가능
+            }
+        }
+        
+        // 전역 함수들
+        let app;
+        
+        window.onload = () => {
+            app = new ZoomInApp();
+        };
+        
+        function loadSampleImage(type) {
+            app.loadSampleImage(type);
+        }
+        
+        function showStudentInfo() {
+            document.getElementById('studentInfo').style.display = 'block';
+            document.getElementById('studentInfo').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function saveAndNext() {
+            app.saveCurrentResponses();
+            app.nextStage();
+        }
+        
+        function completeActivity() {
+            app.saveCurrentResponses();
+            document.getElementById('completionModal').style.display = 'block';
+            
+            setTimeout(() => {
+                closeModal();
+                showResults();
+            }, 2000);
+        }
+        
+        function showResults() {
+            document.getElementById('activityArea').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('loadingSpinner').style.display = 'block';
+            
+            setTimeout(() => {
+                app.generateResultImage();
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }, 500);
+        }
+        
+        function downloadResult() {
+            app.downloadResult();
+        }
+        
+        function copyToClipboard() {
+            app.copyToClipboard();
+        }
+        
+        function startNewActivity() {
+            if (confirm('새 활동을 시작하시겠습니까? 현재 데이터는 사라집니다.')) {
+                location.reload();
+            }
+        }
+        
+        function resetActivity() {
+            if (confirm('처음부터 다시 시작하시겠습니까? 작성한 내용이 사라집니다.')) {
+                app.currentStage = 0;
+                app.responses = [];
+                app.showStage(0);
+                app.updateUI();
+                app.clearInputs();
+                app.showToast('활동이 초기화되었습니다');
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('completionModal').style.display = 'none';
+        }
+        
+        // PWA 지원 (옵션)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {
+                // Service Worker 등록 실패 시 무시
+            });
+        }
+    </script>
+</body>
+</html>
